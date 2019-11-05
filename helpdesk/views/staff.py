@@ -1016,11 +1016,9 @@ def raw_details(request, type):
     # TODO: This currently only supports spewing out 'PreSetReply' objects,
     # in the future it needs to be expanded to include other items. All it
     # does is return a plain-text representation of an object.
-
     # NOTE: changed
     # if type not in ('preset',):
     #     raise Http404
-
     if type == 'preset' and request.GET.get('id', False):
         try:
             preset = PreSetReply.objects.get(id=request.GET.get('id'))
