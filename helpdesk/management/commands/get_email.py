@@ -99,8 +99,6 @@ def process_email(quiet=False):
             logger.setLevel(logging.CRITICAL)
         elif q.logging_type == 'debug':
             logger.setLevel(logging.DEBUG)
-        else
-            logging.disable(logging.DEBUG)
         if quiet:
             logger.propagate = False  # do not propagate to root logger that would log to console
         logdir = q.logging_dir or '/var/log/helpdesk/'
