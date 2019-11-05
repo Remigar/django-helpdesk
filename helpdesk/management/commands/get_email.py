@@ -81,7 +81,16 @@ class Command(BaseCommand):
 
 
 # NOTE: changed
-def get_log_level(logtype):
+# def get_log_level(logtype):
+#     switcher = {
+#         'info': logging.INFO,
+#         'warn': logging.WARN,
+#         'error': logging.ERROR,
+#         'crit': logging.CRITICAL,
+#         'debug': logging.DEBUG
+#     }
+#     return switcher.get(logtype, logging.DEBUG)
+def process_email(quiet=False): 
     switcher = {
         'info': logging.INFO,
         'warn': logging.WARN,
@@ -89,10 +98,6 @@ def get_log_level(logtype):
         'crit': logging.CRITICAL,
         'debug': logging.DEBUG
     }
-    return switcher.get(logtype, logging.DEBUG)
-
-
-def process_email(quiet=False): 
     for q in Queue.objects.filter(
             email_box_type__isnull=False,
             allow_email_submission=True):
@@ -102,8 +107,8 @@ def process_email(quiet=False):
         if not q.logging_type or q.logging_type == 'none':
             logging.disable(logging.CRITICAL)  # disable all messages
         else
-            logger.setLevel(get_log_level(q.logging_type))
-        # elif q.logging_type == 'info':
+            logger.setLevel(switcher.get(q.logging_type, logging.DEBUG))
+            # elif q.logging_type == 'info':
         #     logger.setLevel(logging.INFO)
         # elif q.logging_type == 'warn':
         #     logger.setLevel(logging.WARN)
