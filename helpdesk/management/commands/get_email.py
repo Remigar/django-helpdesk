@@ -91,8 +91,8 @@ def get_log_level(logtype):
     }
     return switcher.get(logtype, logging.DEBUG)
 
-def process_email(quiet=False):
-    
+
+def process_email(quiet=False): 
     for q in Queue.objects.filter(
             email_box_type__isnull=False,
             allow_email_submission=True):
