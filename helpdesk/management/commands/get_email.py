@@ -37,6 +37,7 @@ from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management.base import BaseCommand
 from django.db.models import Q
+
 from django.utils.translation import ugettext as _
 from django.utils import encoding, six, timezone
 
@@ -98,6 +99,8 @@ def process_email(quiet=False):
             logger.setLevel(logging.CRITICAL)
         elif q.logging_type == 'debug':
             logger.setLevel(logging.DEBUG)
+        else
+            logging.disable(logging.DEBUG)
         if quiet:
             logger.propagate = False  # do not propagate to root logger that would log to console
         logdir = q.logging_dir or '/var/log/helpdesk/'
