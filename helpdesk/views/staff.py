@@ -1021,7 +1021,7 @@ def raw_details(request, type):
     # if type not in ('preset',):
     #     raise Http404
 
-    if type == 'preset' and request.GET.get('id', False):    
+    if type == 'preset' and request.GET.get('id', False):
         try:
             preset = PreSetReply.objects.get(id=request.GET.get('id'))
             return HttpResponse(preset.body)
