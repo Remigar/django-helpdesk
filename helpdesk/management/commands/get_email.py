@@ -80,39 +80,24 @@ class Command(BaseCommand):
         process_email(quiet=quiet)
 
 
-# NOTE: changed
-def get_log_level(logtype):
-    switcher = {
-        'info': logging.INFO,
-        'warn': logging.WARN,
-        'error': logging.ERROR,
-        'crit': logging.CRITICAL,
-        'debug': logging.DEBUG
-    }
-    return switcher.get(logtype, logging.DEBUG)
-
-
 def process_email(quiet=False):
     for q in Queue.objects.filter(
             email_box_type__isnull=False,
             allow_email_submission=True):
 
         logger = logging.getLogger('django.helpdesk.queue.' + q.slug)
-        # NOTE: changed
         if not q.logging_type or q.logging_type == 'none':
             logging.disable(logging.CRITICAL)  # disable all messages
-        else
-            logger.setLevel(get_log_level(q.logging_type))
-        # elif q.logging_type == 'info':
-        #     logger.setLevel(logging.INFO)
-        # elif q.logging_type == 'warn':
-        #     logger.setLevel(logging.WARN)
-        # elif q.logging_type == 'error':
-        #     logger.setLevel(logging.ERROR)
-        # elif q.logging_type == 'crit':
-        #     logger.setLevel(logging.CRITICAL)
-        # elif q.logging_type == 'debug':
-        #     logger.setLevel(logging.DEBUG)
+        elif q.logging_type == 'info':
+            logger.setLevel(logging.INFO)
+        elif q.logging_type == 'warn':
+            logger.setLevel(logging.WARN)
+        elif q.logging_type == 'error':
+            logger.setLevel(logging.ERROR)
+        elif q.logging_type == 'crit':
+            logger.setLevel(logging.CRITICAL)
+        elif q.logging_type == 'debug':
+            logger.setLevel(logging.DEBUG)
         if quiet:
             logger.propagate = False  # do not propagate to root logger that would log to console
         logdir = q.logging_dir or '/var/log/helpdesk/'
