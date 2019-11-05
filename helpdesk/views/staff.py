@@ -391,10 +391,12 @@ def update_ticket(request, ticket_id, public=False):
             due_date = ticket.due_date
         else:
             # NOTE: must be an easier way to create a new date than doing it this way?
-            if ticket.due_date:
-                due_date = ticket.due_date
-            else:
-                due_date = timezone.now()
+            # NOTE: changed
+            due_date = ticket.due_date if ticket.due_date else timezone.now()
+            # if ticket.due_date:
+            #     due_date = ticket.due_date
+            # else:
+            #     due_date = timezone.now()
             due_date = due_date.replace(due_date_year, due_date_month, due_date_day)
 
     no_changes = all([
@@ -419,8 +421,10 @@ def update_ticket(request, ticket_id, public=False):
     # this prevents system from trying to render any template tags
     # broken into two stages to prevent changes from first replace being themselves
     # changed by the second replace due to conflicting syntax
-    comment = comment.replace('{%', 'X-HELPDESK-COMMENT-VERBATIM').replace('%}', 'X-HELPDESK-COMMENT-ENDVERBATIM')
-    comment = comment.replace('X-HELPDESK-COMMENT-VERBATIM', '{% verbatim %}{%').replace('X-HELPDESK-COMMENT-ENDVERBATIM', '%}{% endverbatim %}')
+    # NOTE: changed
+    comment = comment.replace('{%', 'X-HELPDESK-COMMENT-VERBATIM').replace('%}', 'X-HELPDESK-COMMENT-ENDVERBATIM').replace.replace('X-HELPDESK-COMMENT-VERBATIM', '{% verbatim %}{%').replace('X-HELPDESK-COMMENT-ENDVERBATIM', '%}{% endverbatim %}')
+    # comment = comment.replace('{%', 'X-HELPDESK-COMMENT-VERBATIM').replace('%}', 'X-HELPDESK-COMMENT-ENDVERBATIM').replace
+    # comment = comment.replace('X-HELPDESK-COMMENT-VERBATIM', '{% verbatim %}{%').replace('X-HELPDESK-COMMENT-ENDVERBATIM', '%}{% endverbatim %}')
     # render the neutralized template
     comment = template_func(comment).render(context)
 
@@ -949,10 +953,13 @@ def ticket_list(request):
 @staff_member_required
 def edit_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    if not _has_access_to_queue(request.user, ticket.queue):
+    # NOTE: changed
+    if not _has_access_to_queue(request.user, ticket.queue) or not _is_my_ticket(request.user, ticket):
         raise PermissionDenied()
-    if not _is_my_ticket(request.user, ticket):
-        raise PermissionDenied()
+    # if not _has_access_to_queue(request.user, ticket.queue):
+    #     raise PermissionDenied()
+    # if not _is_my_ticket(request.user, ticket):
+    #     raise PermissionDenied()
 
     if request.method == 'POST':
         form = EditTicketForm(request.POST, instance=ticket)
@@ -967,10 +974,12 @@ def edit_ticket(request, ticket_id):
 
 @staff_member_required
 def create_ticket(request):
-    if helpdesk_settings.HELPDESK_STAFF_ONLY_TICKET_OWNERS:
-        assignable_users = User.objects.filter(is_active=True, is_staff=True).order_by(User.USERNAME_FIELD)
-    else:
-        assignable_users = User.objects.filter(is_active=True).order_by(User.USERNAME_FIELD)
+    # NOTE: changed
+    assignable_users = User.objects.filter(is_active=True, is_staff=helpdesk_settings.HELPDESK_STAFF_ONLY_TICKET_OWNERS).order_by(User.USERNAME_FIELD)
+    # if helpdesk_settings.HELPDESK_STAFF_ONLY_TICKET_OWNERS:
+    #     assignable_users = User.objects.filter(is_active=True, is_staff=True).order_by(User.USERNAME_FIELD)
+    # else:
+    #     assignable_users = User.objects.filter(is_active=True).order_by(User.USERNAME_FIELD)
 
     if request.method == 'POST':
         form = TicketForm(request.POST, request.FILES)
@@ -1008,10 +1017,11 @@ def raw_details(request, type):
     # in the future it needs to be expanded to include other items. All it
     # does is return a plain-text representation of an object.
 
-    if type not in ('preset',):
-        raise Http404
+    # NOTE: changed
+    # if type not in ('preset',):
+    #     raise Http404
 
-    if type == 'preset' and request.GET.get('id', False):
+    if type == 'preset' and request.GET.get('id', False):    
         try:
             preset = PreSetReply.objects.get(id=request.GET.get('id'))
             return HttpResponse(preset.body)
@@ -1024,17 +1034,23 @@ def raw_details(request, type):
 @staff_member_required
 def hold_ticket(request, ticket_id, unhold=False):
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    if not _has_access_to_queue(request.user, ticket.queue):
+    # NOTE: changed
+    if not (_has_access_to_queue(request.user, ticket.queue) or _is_my_ticket(request.user, ticket)):
         raise PermissionDenied()
-    if not _is_my_ticket(request.user, ticket):
-        raise PermissionDenied()
+    # if not _has_access_to_queue(request.user, ticket.queue):
+    #     raise PermissionDenied()
+    # if not _is_my_ticket(request.user, ticket):
+    #     raise PermissionDenied()
 
-    if unhold:
-        ticket.on_hold = False
-        title = _('Ticket taken off hold')
-    else:
-        ticket.on_hold = True
-        title = _('Ticket placed on hold')
+    # NOTE: changed
+    ticket.on_hold = not unhold
+    title = _('Ticket taken off hold') if unhold else _('Ticket placed on hold')
+    # if unhold:
+    #     ticket.on_hold = False
+    #     title = _('Ticket taken off hold')
+    # else:
+    #     ticket.on_hold = True
+    #     title = _('Ticket placed on hold')
 
     f = FollowUp(
         ticket=ticket,
