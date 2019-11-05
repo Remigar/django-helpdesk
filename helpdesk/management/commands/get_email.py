@@ -90,7 +90,7 @@ class Command(BaseCommand):
 #         'debug': logging.DEBUG
 #     }
 #     return switcher.get(logtype, logging.DEBUG)
-def process_email(quiet=False): 
+def process_email(quiet=False):
     switcher = {
         'info': logging.INFO,
         'warn': logging.WARN,
