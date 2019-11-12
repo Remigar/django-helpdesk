@@ -84,6 +84,12 @@ def _is_my_ticket(user, ticket):
         return False
 
 
+def _is_my_ticket2(user, ticket):
+    """Check to see if the user has permission to access
+    a ticket. If not then deny access."""
+    return (user.is_superuser or user.is_staff or user.id == ticket.assigned_to.id)
+
+
 @staff_member_required
 def dashboard(request):
     """
