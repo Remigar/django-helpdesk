@@ -95,4 +95,4 @@ class StaffTestCase(TestCase):
         ticket = Ticket.objects.create(**initial_data)
 
         self.assertEqual(_is_my_ticket2(self.user, ticket), True)
-        self.assertEqual(_is_my_ticket2(self.user2, ticket), False)
+        self.assertEqual(_is_my_ticket2(self.user2, ticket), True)
